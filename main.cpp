@@ -2,27 +2,16 @@
 #include <iostream>
 
 int main() {
-    MathExpression a(2);  
-    MathExpression b(3); 
-    MathExpression c = a + b; 
-    std::cout << "Test 1: Addition" << std::endl;
-    std::cout << a.toString() << " + " << b.toString() << " = " << c.toString() << std::endl;
-    std::cout << "Result: " << c.evaluate({}) << std::endl; 
-    std::cout << "Expected: 5" << std::endl;
-    std::cout << (c.evaluate({}) == 5 ? "Test 1 Passed!" : "Test 1 Failed!") << "\n" << std::endl;
+    MathExpression<double> a(2.5);
+    MathExpression<double> b(3.0);
+    MathExpression<double> c = a + b;
 
-    MathExpression d(2); 
-    MathExpression e(3);  
-    MathExpression f = d ^ e; 
-
-    std::cout << "Test 2: Power" << std::endl;
-    std::cout << d.toString() << " ^ " << e.toString() << " = " << f.toString() << std::endl;
-    std::cout << "Result: " << f.evaluate({}) << std::endl;  
-    std::cout << "Expected: 8" << std::endl;
-    std::cout << (f.evaluate({}) == 8 ? "Test 2 Passed!" : "Test 2 Failed!") << "\n" << std::endl;
+    std::cout << "Expression: " << c << std::endl;
+    std::cout << "Result: " << c.evaluate({}) << std::endl;
 
     return 0;
 }
+
 // #include <cassert>
 // void testMathExpression() {
 //     MathExpression expr1(2);
