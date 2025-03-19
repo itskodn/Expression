@@ -1,90 +1,58 @@
-#include "MathExpr.hpp"
+#include <MathExpr.hpp>
 #include <iostream>
+#include <map>
+#include <string>
 
-int main() {
-    MathExpression<double> a(2.5);
-    MathExpression<double> b(3.0);
-    MathExpression<double> c = a + b;
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        throw std::runtime_error("Недоостаточно аргументов\n");
+        return 1;
+    }
+    std::string type = argv[1];
 
-    std::cout << "Expression: " << c << std::endl;
-    std::cout << "Result: " << c.evaluate({}) << std::endl;
+    bool is_comp = 0;
+    for (int i = 2; i < argc; ++i) {
+        is_comp |= is_complex(argv[i]);
+    }
 
-    return 0;
+    if (type == "--eval") {
+        std::string expr_str = argv[2];
+        if (!is_comp) {
+            std::map<std::string, Real> vars;
+            for (int i = 3; i < argc; ++i) {
+                std::string Var = argv[i];
+                int pos = Var.find("=");
+                std::string var = Var.substr(0, pos);
+                Real val = stold(Var.substr(pos + 1));
+                if (vars.count(var))
+                    throw std::runtime_error("2 раза одна переменная");
+                vars[var] = val;
+            }
+            std::cout << parseExpression<Real>(expr_str).eval(vars) << '\n';
+        } else {
+            std::map<std::string, Complex> vars;
+            for (int i = 3; i < argc; ++i) {
+                std::string Var = argv[i];
+                int pos = Var.find("=");
+                std::string var = Var.substr(0, pos);
+                std::cout << "var = " << Var.substr(pos + 1) << '\n';
+                Complex val = ParseComplex(Var.substr(pos + 1));
+                if (vars.count(var))
+                    throw std::runtime_error("2 раза одна переменная");
+                vars[var] = val;
+            }
+            std::cout << parseExpression<Complex>(expr_str).eval(vars) << '\n';
+        }
+    } else if (type == "--diff") {
+        if (argc != 5 || std::string(argv[3]) != "--by")
+            throw std::runtime_error("некоректный запрос");
+        std::string expr_str = argv[2];
+        if (!is_comp) {
+            std::cout << parseExpression<Real>(expr_str).diff(argv[4]) << '\n';
+        } else
+            std::cout << parseExpression<Complex>(expr_str).diff(argv[4])
+                      << '\n';
+    } else {
+        throw std::runtime_error("Unkown function");
+    }
 }
-
-// #include <cassert>
-// void testMathExpression() {
-//     MathExpression expr1(2);
-//     MathExpression expr2(3);
-//     MathExpression expr3 = expr1 + expr2;
-
-//     std::cout << "Testing addition:" << std::endl;
-//     std::cout << expr1.toString() << " + " << expr2.toString() << " = " << expr3.toString() << std::endl;
-//     std::cout << "Expected result: 5, Actual result: " << expr3.evaluate({}) << std::endl;
-//     assert(expr3.evaluate({}) == 5);  
-//     std::cout << "Addition test passed!\n" << std::endl;
-
-//     MathExpression expr4 = expr1 ^ expr2;
-
-//     std::cout << "Testing power:" << std::endl;
-//     std::cout << expr1.toString() << " ^ " << expr2.toString() << " = " << expr4.toString() << std::endl;
-//     std::cout << "Expected result: 8, Actual result: " << expr4.evaluate({}) << std::endl;
-//     assert(expr4.evaluate({}) == 8);  
-//     std::cout << "Power test passed!\n" << std::endl;
-
-//     MathExpression expr5 = sin(expr1);
-
-//     std::cout << "Testing sine function:" << std::endl;
-//     std::cout << "sin(" << expr1.toString() << ") = " << expr5.toString() << std::endl;
-//     std::cout << "Expected result: " << std::sin(2) << ", Actual result: " << expr5.evaluate({}) << std::endl;
-//     assert(expr5.evaluate({}) == std::sin(2)); 
-//     std::cout << "Sine test passed!\n" << std::endl;
-
-//     MathExpression expr6 = expr1 * expr2;
-
-//     std::cout << "Testing multiplication:" << std::endl;
-//     std::cout << expr1.toString() << " * " << expr2.toString() << " = " << expr6.toString() << std::endl;
-//     std::cout << "Expected result: 6, Actual result: " << expr6.evaluate({}) << std::endl;
-//     assert(expr6.evaluate({}) == 6);  
-//     std::cout << "Multiplication test passed!\n" << std::endl;
-
-//     MathExpression expr7 = expr2 / expr1;
-
-//     std::cout << "Testing division:" << std::endl;
-//     std::cout << expr2.toString() << " / " << expr1.toString() << " = " << expr7.toString() << std::endl;
-//     std::cout << "Expected result: 1.5, Actual result: " << expr7.evaluate({}) << std::endl;
-//     assert(expr7.evaluate({}) == 1.5);  
-//     std::cout << "Division test passed!\n" << std::endl;
-
-//     MathExpression expr8 = cos(expr1);
-
-//     std::cout << "Testing cosine function:" << std::endl;
-//     std::cout << "cos(" << expr1.toString() << ") = " << expr8.toString() << std::endl;
-//     std::cout << "Expected result: " << std::cos(2) << ", Actual result: " << expr8.evaluate({}) << std::endl;
-//     assert(expr8.evaluate({}) == std::cos(2));  
-//     std::cout << "Cosine test passed!\n" << std::endl;
-
-//     MathExpression expr9 = exp(expr1);
-
-//     std::cout << "Testing exponential function:" << std::endl;
-//     std::cout << "exp(" << expr1.toString() << ") = " << expr9.toString() << std::endl;
-//     std::cout << "Expected result: " << std::exp(2) << ", Actual result: " << expr9.evaluate({}) << std::endl;
-//     assert(expr9.evaluate({}) == std::exp(2));  
-//     std::cout << "Exponential test passed!\n" << std::endl;
-
-    
-//     MathExpression expr10 = log(expr1);
-
-//     std::cout << "Testing natural logarithm function:" << std::endl;
-//     std::cout << "log(" << expr1.toString() << ") = " << expr10.toString() << std::endl;
-//     std::cout << "Expected result: " << std::log(2) << ", Actual result: " << expr10.evaluate({}) << std::endl;
-//     assert(expr10.evaluate({}) == std::log(2)); 
-//     std::cout << "Logarithm test passed!\n" << std::endl;
-
-//     std::cout << "All tests passed!" << std::endl;
-// }
-
-// int main() {
-//     testMathExpression();
-//     return 0;
-// }
